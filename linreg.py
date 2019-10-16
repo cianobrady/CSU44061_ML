@@ -14,8 +14,8 @@ df = pd.read_csv('tcd ml 2019-20 income prediction training (with labels).csv')
 df_test = pd.read_csv('tcd ml 2019-20 income prediction test (without labels).csv')
 df_test = df_test.drop('Income', axis=1) # Remove income as headings are different
 
+#concatenate datasets and keep track of the index where they meet
 total = df.append(df_test)
-
 index = len(total) - len(df_test)
 
 #Replace empty values and remove unused columns
@@ -30,6 +30,7 @@ X = X.drop(['University Degree', 'Country', 'Gender'], axis=1)
 #concatenate numerical and categorical data
 data = pd.concat([X,Xohe], axis=1)
 
+#train data is set to training file, test data is set to test file
 training_data = data[:index]
 test_data = data[index:]
 trainy = training_data['Income in EUR'].astype('int')
@@ -41,16 +42,17 @@ X_train, X_test, y_train, y_test = train_test_split(trainx, trainy, test_size=0.
 
 regressor = LinearRegression()  
 regressor.fit(X_train, y_train) #training the algorithm
-y_pred = regressor.predict(X_test)
+y_pred = regressor.predict(X_test) #local tests
 
+#make predictions
 y_testpred = regressor.predict(test)
-print(len(y_testpred))
 
+#write back to file
 subf = pd.read_csv('tcd ml 2019-20 income prediction submission file.csv')
 i = 0
 while (i < len(y_testpred)):
     subf.Income[i] = y_testpred[i]
     i += 1
-subf.to_csv('out3.csv', index=False, sep=',')
+subf.to_csv('out.csv', index=False, sep=',')
 
 print('Root Mean Squared Error:', np.sqrt(metrics.mean_squared_error(y_test, y_pred)))
